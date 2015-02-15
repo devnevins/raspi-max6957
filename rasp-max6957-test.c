@@ -25,21 +25,24 @@ void main(int argc, char** argv) {
         exit(EXIT_FAILURE);
     }
 
-    uint16_t tx_buf[10];
-    uint16_t rx_buf[10];
+    uint16_t tx_buf = 0;
+    uint16_t rx_buf = 0;
 
-    memset(tx_buf, 0, ARRAY_SIZE(tx_buf));
-    memset(rx_buf, 0, ARRAY_SIZE(rx_buf));
+    // memset(tx_buf, 0, ARRAY_SIZE(tx_buf));
+    // memset(rx_buf, 0, ARRAY_SIZE(rx_buf));
 
-    tx_buf[0] = 0xF5A5;
+    tx_buf = 0xF5A5;
 
-    printf("Message to be transmitted: \"%x\"\n", tx_buf[0]);
+    printf("Message to be transmitted: \"%x\"\n", tx_buf);
+
+    // Swap the bytes so that the MSB of the lead byte comes out first.
+    tx_buf = ((tx_buf >> 8) & 0x00FF) | ((tx_buf << 8) & 0xFF00);
 
     struct spi_ioc_transfer msg;
     memset(&msg, 0, sizeof(struct spi_ioc_transfer));
 
-    msg.tx_buf = (int)tx_buf;
-    msg.rx_buf = (int)rx_buf;
+    msg.tx_buf = (int)&tx_buf;
+    msg.rx_buf = (int)&rx_buf;
     msg.len = 2;
     // msg.bits_per_word = 8;
     // msg.cs_change = 0;
@@ -56,7 +59,9 @@ void main(int argc, char** argv) {
         printf("No Message received.\n");
         exit(EXIT_FAILURE);
     } else {
-        printf("Message received: \"%x\"\n", rx_buf[0]);
+        // Swap the bytes back so that you can read it correctly.
+        rx_buf = ((rx_buf >> 8) & 0x00FF) | ((rx_buf << 8) & 0xFF00);
+        printf("Message received: \"%x\"\n", rx_buf);
     }
 
 }
