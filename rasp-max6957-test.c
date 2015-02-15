@@ -31,9 +31,9 @@ void main(int argc, char** argv) {
     memset(tx_buf, 0, ARRAY_SIZE(tx_buf));
     memset(rx_buf, 0, ARRAY_SIZE(rx_buf));
 
-    tx_buf[0] = 'HI';
+    tx_buf[0] = 0xF5A5;
 
-    printf("Message to be transmitted: \"%s\"\n", tx_buf);
+    printf("Message to be transmitted: \"%x\"\n", tx_buf[0]);
 
     struct spi_ioc_transfer msg;
     memset(&msg, 0, sizeof(struct spi_ioc_transfer));
@@ -41,7 +41,8 @@ void main(int argc, char** argv) {
     msg.tx_buf = (int)tx_buf;
     msg.rx_buf = (int)rx_buf;
     msg.len = 2;
-    msg.bits_per_word = 16;
+    // msg.bits_per_word = 8;
+    // msg.cs_change = 0;
     // msg.speed_hz = 0;
     // msg.delay_usecs = 0;
     // msg.cs_change = 0;
@@ -55,7 +56,7 @@ void main(int argc, char** argv) {
         printf("No Message received.\n");
         exit(EXIT_FAILURE);
     } else {
-        printf("Message received: \"%s\"\n", rx_buf);
+        printf("Message received: \"%x\"\n", rx_buf[0]);
     }
 
 }
